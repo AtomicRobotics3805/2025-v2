@@ -88,6 +88,39 @@ object TrajectoryFactory {
     val observationZonePark: Pose2d = Pose2d(-50.0, 60.0, 0.rad)
     
     fun createTrajectories(drive: MecanumDrive) {
+        
+        //region LEFT SIDE
+        leftStartToHighBasket = drive.actionBuilder(startPosLeft)
+            .setTangent(270.rad)
+            .splineToLinearHeading(basketHigh, 45.rad).build()
+        highBasketToAscentPark = drive.actionBuilder(basketHigh)
+            .splineToSplineHeading(ascentPark, 180.rad).build()
+
+        highBasketToRightSample = drive.actionBuilder(basketHigh)
+            .strafeToSplineHeading(rightSample.position, rightSample.heading).build()
+        pickupRightSample = drive.actionBuilder(rightSample)
+            .lineToY(rightSample.position.y + 8.0, TranslationalVelConstraint(40.0)).build()
+        rightSampleToHighBasket = drive.actionBuilder(rightSample)
+            .setTangent(90.rad)
+            .splineToSplineHeading(basketHigh, 45.rad).build()
+
+        highBasketToCenterSample = drive.actionBuilder(basketHigh)
+            .strafeToLinearHeading(centerSample.position, centerSample.heading).build()
+        pickupCenterSample = drive.actionBuilder(centerSample)
+            .lineToY( centerSample.position.y + 15.0, TranslationalVelConstraint(20.0)).build()
+        centerSampleToHighBasket = drive.actionBuilder(centerSample)
+            .setTangent(90.rad)
+            .strafeToSplineHeading(basketHigh.position, basketHigh.heading).build()
+
+        highBasketToLeftSample = drive.actionBuilder(basketHigh)
+            .splineToSplineHeading(leftSample, 315.rad).build()
+        leftSampleToLeftSamplePickup = drive.actionBuilder(leftSample)
+            .strafeToLinearHeading(leftSamplePickup.position, leftSamplePickup.heading, TranslationalVelConstraint(40.0)).build()
+        leftSampleToHighBasket = drive.actionBuilder(leftSamplePickup)
+            .setTangent(135.rad)
+            .splineToSplineHeading(basketHigh, 90.rad).build()
+        //endregion
+        
         //region RIGHT SIDE
         rightStartToHighChamber1 = drive.actionBuilder(startPosRight)
             .setTangent(270.rad)

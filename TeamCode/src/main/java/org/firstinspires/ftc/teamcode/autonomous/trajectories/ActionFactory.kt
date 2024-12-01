@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.autonomous.trajectories
 
-import android.content.pm.ActivityInfo
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.ParallelAction
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.qualcomm.robotcore.hardware.DcMotor
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive
-import org.firstinspires.ftc.teamcode.subsystems.IntakeExtensionSubsystem
-import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.arm
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.claw
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.intake
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.intakeExtension
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.intakePivot
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.lift
+import page.j5155.expressway.actions.RaceParallelAction
 
 object ActionFactory {
     //region Base
@@ -93,6 +90,159 @@ object ActionFactory {
             }
         }
     }
+    //endregion
+    
+    //region Samples
+    val preloadSample: Action
+        get() = ParallelAction(
+            TrajectoryFactory.leftStartToHighBasket,
+            SequentialAction(
+                intakeExtension.toSlightlyOut(),
+                intakeExtension.toIn()
+            ),
+            lift.toHigh(),
+            SequentialAction(
+                SleepAction(1.5),
+                arm.toScore()
+            )
+        )
+    
+    val highBasketScoreToAscent: Action
+        get() = ParallelAction(
+            TrajectoryFactory.highBasketToAscentPark,
+            lift.toIntake(),
+            arm.toAscentOne()
+        )
+    
+    val inToTransfer: Action
+        get() = SequentialAction(
+            ParallelAction(
+                intakePivot.toUp(),
+                lift.toALittleHigh(),
+                claw.toOpen(),
+                SequentialAction(
+                    SleepAction(0.5),
+                    arm.toIntake()
+                )
+            ),
+            intakeExtension.toIn(),
+            intakePivot.toTransfer(),
+            lift.toIntake(),
+            claw.toClose()
+        )
+    
+    val rightFloorSample: Action
+        get() = SequentialAction(
+            ParallelAction(
+                SequentialAction(
+                    intakePivot.toUp(),
+                    intakeExtension.toSlightlyOut(),
+                    intakePivot.toDown()
+                ),
+                intake.start(),
+                
+                TrajectoryFactory.highBasketToRightSample
+            ),
+            RaceParallelAction(
+                intake.runUntilSampleInIntake(),
+                TrajectoryFactory.pickupRightSample
+            ),
+            intake.stop(),
+            ParallelAction(
+                SequentialAction(
+                    inToTransfer,
+                    ParallelAction(
+                        SequentialAction(
+                            intakeExtension.toSlightlyOut(),
+                            intakeExtension.toIn()
+                        ),
+                        lift.toHigh(),
+                        SequentialAction(
+                            intake.reverse(),
+                            SleepAction(1.5),
+                            arm.toScore()
+                        )
+                    )
+                ),
+                TrajectoryFactory.rightSampleToHighBasket
+            ),
+            intake.stop()
+        )
+    
+    val centerFloorSample: Action
+        get() = SequentialAction(
+            ParallelAction(
+                SequentialAction(
+                    intakePivot.toUp(),
+                    intakeExtension.toSlightlyOut(),
+                    intakePivot.toDown()
+                ),
+                intake.start(),
+                
+                TrajectoryFactory.highBasketToCenterSample
+            ),
+            RaceParallelAction(
+                intake.runUntilSampleInIntake(),
+                TrajectoryFactory.pickupCenterSample
+            ),
+            intake.stop(),
+            ParallelAction(
+                SequentialAction(
+                    inToTransfer,
+                    ParallelAction(
+                        SequentialAction(
+                            intakeExtension.toSlightlyOut(),
+                            intakeExtension.toIn()
+                        ),
+                        lift.toHigh(),
+                        SequentialAction(
+                            intake.reverse(),
+                            SleepAction(1.5),
+                            arm.toScore()
+                        )
+                    )
+                ),
+                TrajectoryFactory.centerSampleToHighBasket
+            ),
+            intake.stop()
+        )
+    
+    val leftFloorSample: Action
+        get() = SequentialAction(
+            ParallelAction(
+                SequentialAction(
+                    intakePivot.toUp(),
+                    intakeExtension.toMiddlePos(),
+                    intakePivot.toDown()
+                ),
+                intake.start(),
+                TrajectoryFactory.highBasketToLeftSample
+            ),
+            RaceParallelAction(
+                intake.runUntilSampleInIntake(),
+                TrajectoryFactory.leftSampleToLeftSamplePickup
+            ),
+            intake.stop(),
+            ParallelAction(
+                SequentialAction(
+                    inToTransfer,
+                    ParallelAction(
+                        SequentialAction(
+                            intakeExtension.toSlightlyOut(),
+                            intakeExtension.toIn()
+                        ),
+                        lift.toHigh(),
+                        SequentialAction(
+                            intake.reverse(),
+                            SleepAction(2.0),
+                            arm.toScore()
+                        )
+                    )
+                ),
+                TrajectoryFactory.leftSampleToHighBasket
+            ),
+            intake.stop()
+        )
     //endregion
     
     //region Specimens

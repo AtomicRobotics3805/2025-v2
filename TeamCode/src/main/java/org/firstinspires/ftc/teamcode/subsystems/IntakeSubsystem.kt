@@ -66,7 +66,13 @@ class IntakeSubsystem(hardwareMap: HardwareMap) {
                 servo1.position = intakeSpeed
                 servo2.position = intakeSpeed
 
-                return SubsystemManager.intakeSensor.currentSample == IntakeSensorSubsystem.SampleColors.NONE
+                if (SubsystemManager.intakeSensor.currentSample != IntakeSensorSubsystem.SampleColors.NONE) {
+                    servo1.position = 0.5
+                    servo2.position = 0.5
+                    return false
+                }
+                
+                return true
             }
         }
     }
