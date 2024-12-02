@@ -1,20 +1,19 @@
 package org.firstinspires.ftc.teamcode.autonomous.opmodes
 
-import com.acmerobotics.roadrunner.Action
 import com.acmerobotics.roadrunner.ParallelAction
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.acmerobotics.roadrunner.ftc.runBlocking
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode
-import org.firstinspires.ftc.teamcode.autonomous.trajectories.ActionFactory
+import org.firstinspires.ftc.teamcode.subsystems.ActionFactory
 import org.firstinspires.ftc.teamcode.autonomous.trajectories.TrajectoryFactory
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.claw
 import page.j5155.expressway.actions.RaceParallelAction
 
-@Autonomous(name = "Four Sample Plus Park", group = "samples")
+@Autonomous(name = "Four Sample Plus Park", group = "samples", preselectTeleOp = "Competition TeleOp")
 class FourSamplePlusPark: LinearOpMode() {
 
     lateinit var drive: MecanumDrive

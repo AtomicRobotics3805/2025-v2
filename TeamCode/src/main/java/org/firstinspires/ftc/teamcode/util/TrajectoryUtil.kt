@@ -8,6 +8,8 @@ val Double.mmToInches get() = this / 25.4
 val Double.toRadians get() = (Math.toRadians(this))
 val Double.rad get() = (this.toRadians)
 
+val Double.toDegrees get() = (Math.toDegrees(this))
+
 val Int.inchesToMm get() = this * 25.4
 val Int.mmToInches get() = this / 25.4
 val Int.toRadians get() = (Math.toRadians(this.toDouble()))

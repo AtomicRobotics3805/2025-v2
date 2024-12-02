@@ -114,4 +114,17 @@ class IntakeExtensionSubsystem(hardwareMap: HardwareMap) {
         }
     }
 
+    fun resetEncoder(): Action {
+        return object: Action {
+            override fun run(p: TelemetryPacket): Boolean {
+                motor.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+
+                motor.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+
+                return false
+            }
+        }
+    }
+
+
 }

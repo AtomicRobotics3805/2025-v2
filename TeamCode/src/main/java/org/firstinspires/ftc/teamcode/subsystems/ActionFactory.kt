@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.autonomous.trajectories
+package org.firstinspires.ftc.teamcode.subsystems
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.ParallelAction
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.qualcomm.robotcore.hardware.DcMotor
+import org.firstinspires.ftc.teamcode.autonomous.trajectories.TrajectoryFactory
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.arm
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.claw
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.intake
@@ -65,30 +66,37 @@ object ActionFactory {
             )
         )
 
+    var usePID = true
+    
     /**
      * This action should be run in parallel (using a RaceAction) with the other actions.
      */
     val motorManagementAction: Action
-        get() = ParallelAction(
+        get() = if(usePID) ParallelAction(
             lift.update(),
             intakeExtension.update()
-        )
+        ) else ParallelAction()
+    
+    val disablePID: Action
+        get() = Action { 
+            usePID = false
+            false 
+        }
+    
+    val enablePID: Action
+        get() = Action {
+            usePID = true
+            false
+        }
 
     /**
      * Resets the motor encoders
      */
     fun resetEncoders(): Action {
-        return object: Action {
-            override fun run(p: TelemetryPacket): Boolean {
-                lift.motor1.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                lift.motor2.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
-                lift.motor1PIDF.targetPosition = 0.0
-                lift.motor2PIDF.targetPosition = 0.0
-                lift.motor1.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                lift.motor2.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
-                return false
-            }
-        }
+        return ParallelAction(
+            lift.resetEncoder(),
+            intakeExtension.resetEncoder()
+        )
     }
     //endregion
     
@@ -140,7 +148,7 @@ object ActionFactory {
                     intakePivot.toDown()
                 ),
                 intake.start(),
-                
+
                 TrajectoryFactory.highBasketToRightSample
             ),
             RaceParallelAction(
@@ -178,7 +186,7 @@ object ActionFactory {
                     intakePivot.toDown()
                 ),
                 intake.start(),
-                
+
                 TrajectoryFactory.highBasketToCenterSample
             ),
             RaceParallelAction(

@@ -14,6 +14,16 @@ object SubsystemManager {
     
     lateinit var drive: MecanumDrive
     
+    fun driveIsInitialized(): Boolean {
+        return this::drive.isInitialized
+    }
+    
+    fun mechanismsAreInitialized(): Boolean {
+        return this::arm.isInitialized && this::claw.isInitialized && 
+                this::intakeExtension.isInitialized && this::intakePivot.isInitialized && 
+                this::intakeSensor.isInitialized && this::intake.isInitialized && 
+                this::lift.isInitialized
+    }
     
     fun initialize(hardwareMap: HardwareMap, drive: MecanumDrive) {
         arm = ArmSubsystem(hardwareMap)

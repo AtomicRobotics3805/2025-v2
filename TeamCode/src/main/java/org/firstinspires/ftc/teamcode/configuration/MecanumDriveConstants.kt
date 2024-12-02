@@ -61,4 +61,10 @@ object MecanumDriveConstants {
     var rightFrontDirection = Direction.FORWARD
     @JvmField
     var rightBackDirection = Direction.FORWARD
+    
+    
+    // DRIVER CONTROLLED
+    var reverseStraight = true
+    var reverseStrafe = true
+    var reverseTurn = true
 }

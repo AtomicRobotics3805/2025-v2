@@ -173,5 +173,19 @@ class LiftSubsystem(hardwareMap: HardwareMap) {
             }
         }
     }
+    
+    fun resetEncoder(): Action {
+        return object: Action {
+            override fun run(p: TelemetryPacket): Boolean {
+                motor1.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                motor2.mode = DcMotor.RunMode.STOP_AND_RESET_ENCODER
+                
+                motor1.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                motor2.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+                
+                return false
+            }
+        }
+    }
 
 }
