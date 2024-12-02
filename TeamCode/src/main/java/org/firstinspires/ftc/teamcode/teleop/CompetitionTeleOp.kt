@@ -8,10 +8,11 @@ import com.acmerobotics.roadrunner.Pose2d
 import com.acmerobotics.roadrunner.PoseVelocity2d
 import com.acmerobotics.roadrunner.Vector2d
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp
+import com.qualcomm.robotcore.util.ElapsedTime
+import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive
 import org.firstinspires.ftc.teamcode.configuration.MecanumDriveConstants.reverseStrafe
 import org.firstinspires.ftc.teamcode.configuration.MecanumDriveConstants.reverseStraight
 import org.firstinspires.ftc.teamcode.configuration.MecanumDriveConstants.reverseTurn
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive
 import org.firstinspires.ftc.teamcode.subsystems.ActionFactory
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager
 import org.firstinspires.ftc.teamcode.subsystems.SubsystemManager.arm
@@ -37,7 +38,15 @@ class CompetitionTeleOp: GamepadActionLinearOpMode() {
     
     val specimenActionAlternator = AlternateActions({ TeleOpActionFactory.toSpecimenPickup }, { TeleOpActionFactory.toSpecimenScore })
     
+    val timer = ElapsedTime()
+    val loopList = mutableListOf<Double>()
+    
+    val actionCountOverTime = mutableListOf<Int>()
+    
     override fun runOpMode() {
+        
+        initialize()
+        
         // We don't want to initialize a new MecanumDrive, since that will reset our heading. Instead, use the same one (if it exists)
         drive = if (SubsystemManager.driveIsInitialized()) {
             // Drive is already initialized. We can set our drive variable to the initialized one.
@@ -85,6 +94,21 @@ class CompetitionTeleOp: GamepadActionLinearOpMode() {
             // Drive control
             handleDriving()
             
+            // Loop timer
+            loopList.add(timer.milliseconds())
+            timer.reset()
+            
+            while (loopList.size > 1000) {
+                loopList.removeAt(0)
+            }
+            
+            // Action counter
+            actionCountOverTime.add(runner.runningActions.size)
+            
+            while (actionCountOverTime.size > 1000) {
+                loopList.removeAt(0)
+            }
+            
             FtcDashboard.getInstance().sendTelemetryPacket(packet)
             
             telemetry.addLine("-----Motors-----")
@@ -106,8 +130,18 @@ class CompetitionTeleOp: GamepadActionLinearOpMode() {
             telemetry.addData("X", drive.pose.position.x)
             telemetry.addData("Y", drive.pose.position.y)
             telemetry.addData("Heading", drive.pose.heading.toDouble().toDegrees)
+            telemetry.addLine()
+            telemetry.addLine("-----Loop Timer-----")
+            telemetry.addData("Last loop time MS", loopList.last())
+            telemetry.addData("Last loop time HZ", 1000.0 / loopList.last())
+            telemetry.addData("Average loop time", loopList.average())
+            telemetry.addData("Average loop time HZ", 1000.0 / loopList.average())
+            telemetry.addData("# of actions running", runner.runningActions.size)
+            telemetry.addData("Average # of actions running", actionCountOverTime.average())
+            telemetry.addData("Average # of actions running per second", actionCountOverTime.average() * (1000.0 / loopList.average()))
             
             telemetry.update()
+            timer.reset()
         }
     }
     

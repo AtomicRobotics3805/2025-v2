@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util
 import com.qualcomm.robotcore.hardware.DcMotorEx
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import com.qualcomm.robotcore.util.ElapsedTime
+import kotlin.math.abs
 
 class PIDFController(private val motor: DcMotorEx, private val coefficients: PIDFCoefficients) {
     
@@ -13,6 +14,8 @@ class PIDFController(private val motor: DcMotorEx, private val coefficients: PID
     private var lastError = 0.0
     private var integralSum = 0.0
     
+    private var lastPower = 0.0
+    
     fun update() {
         val error = targetPosition - motor.currentPosition
         
@@ -20,7 +23,13 @@ class PIDFController(private val motor: DcMotorEx, private val coefficients: PID
         val derivative = (error - lastError) / timer.seconds()
         
         lastError = error
-        motor.power = (error * coefficients.p) + (integralSum * coefficients.i) + (derivative * coefficients.d) + coefficients.f
+        val power = (error * coefficients.p) + 
+                (integralSum * coefficients.i) + 
+                (derivative * coefficients.d) + coefficients.f
+        
+        if (abs(lastPower - power) > 0.01) {
+            motor.power = power
+        }
         
         timer.reset()
     }

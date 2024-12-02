@@ -6,5 +6,9 @@ package org.firstinspires.ftc.teamcode.util
  * @param runner a org.firstinspires.ftc.teamcode.util.GamepadActionRunner (you don't need to override this, it handles that automatically)
  */
 abstract class GamepadActionLinearOpMode(): ActionLinearOpMode() {
-    override val runner: GamepadActionRunner = GamepadActionRunner(gamepad1, gamepad2)
+    override lateinit var runner: GamepadActionRunner
+    
+    fun initialize() {
+        runner = GamepadActionRunner(gamepad1, gamepad2)
+    }
 }
