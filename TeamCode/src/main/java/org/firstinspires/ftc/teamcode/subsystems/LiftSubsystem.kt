@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket
 import com.acmerobotics.roadrunner.Action
 import com.qualcomm.robotcore.hardware.DcMotor
 import com.qualcomm.robotcore.hardware.DcMotorEx
+import com.qualcomm.robotcore.hardware.DcMotorSimple
 import com.qualcomm.robotcore.hardware.HardwareMap
 import com.qualcomm.robotcore.hardware.PIDFCoefficients
 import org.firstinspires.ftc.teamcode.util.PIDFController
@@ -34,6 +35,9 @@ class LiftSubsystem(hardwareMap: HardwareMap) {
     init {
         motor1.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
         motor2.mode = DcMotor.RunMode.RUN_WITHOUT_ENCODER
+        
+        motor1.direction = DcMotorSimple.Direction.REVERSE
+        motor2.direction = DcMotorSimple.Direction.REVERSE
     }
 
     /**
@@ -94,7 +98,7 @@ class LiftSubsystem(hardwareMap: HardwareMap) {
                 motor2PIDF.targetPosition = highPos * COUNTS_PER_INCH
 
                 // If either motor is *not* within 10 ticks, the action is not complete and should run again
-                return (!motor1PIDF.isWithinDistance(10.0)) || (!motor2PIDF.isWithinDistance(10.0))
+                return (!motor1PIDF.isWithinDistance(10.0)) || (!motor2PIDF.isWithinDistance(40.0))
             }
         }
     }

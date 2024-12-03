@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autonomous.opmodes
 
+import com.acmerobotics.roadrunner.ParallelAction
 import com.acmerobotics.roadrunner.SequentialAction
 import com.acmerobotics.roadrunner.SleepAction
 import com.acmerobotics.roadrunner.ftc.runBlocking
@@ -32,8 +33,16 @@ class ThreeSpecimenPlusPark: LinearOpMode() {
         )
         
         runBlocking(
-            ActionFactory.resetEncoders()
+            RaceParallelAction(
+                ActionFactory.resetEncoders(),
+                ActionFactory.autonomousWithSampleInitRoutine
+            )
         )
+        
+        
+        
+        telemetry.addLine("Ready to start")
+        telemetry.update()
         waitForStart()
         
         if (isStopRequested) return

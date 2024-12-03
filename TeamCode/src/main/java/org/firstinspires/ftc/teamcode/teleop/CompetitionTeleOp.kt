@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.TeleOpActionFactory
 import org.firstinspires.ftc.teamcode.util.GamepadActionLinearOpMode
 import org.firstinspires.ftc.teamcode.util.rad
 import org.firstinspires.ftc.teamcode.util.toDegrees
+import java.util.LinkedList
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -39,9 +40,7 @@ class CompetitionTeleOp: GamepadActionLinearOpMode() {
     val specimenActionAlternator = AlternateActions({ TeleOpActionFactory.toSpecimenPickup }, { TeleOpActionFactory.toSpecimenScore })
     
     val timer = ElapsedTime()
-    val loopList = mutableListOf<Double>()
-    
-    val actionCountOverTime = mutableListOf<Int>()
+    val loopTimeAverage: LinkedList<Double>
     
     override fun runOpMode() {
         
@@ -86,6 +85,7 @@ class CompetitionTeleOp: GamepadActionLinearOpMode() {
         createMappings()
         
         while (opModeIsActive() && !isStopRequested) {
+            timer.reset()
             val packet = TelemetryPacket()
             
             runner.update()
@@ -95,18 +95,10 @@ class CompetitionTeleOp: GamepadActionLinearOpMode() {
             handleDriving()
             
             // Loop timer
-            loopList.add(timer.milliseconds())
-            timer.reset()
-            
-            while (loopList.size > 1000) {
-                loopList.removeAt(0)
-            }
-            
-            // Action counter
-            actionCountOverTime.add(runner.runningActions.size)
-            
-            while (actionCountOverTime.size > 1000) {
-                loopList.removeAt(0)
+            val loopTimeMs = timer.milliseconds()
+            loopTimeAverage.add(loopTimeMs)
+            while (loopTimeAverage.size > 1000) {
+                loopTimeAverage.removeFirst()
             }
             
             FtcDashboard.getInstance().sendTelemetryPacket(packet)
@@ -132,13 +124,10 @@ class CompetitionTeleOp: GamepadActionLinearOpMode() {
             telemetry.addData("Heading", drive.pose.heading.toDouble().toDegrees)
             telemetry.addLine()
             telemetry.addLine("-----Loop Timer-----")
-            telemetry.addData("Last loop time MS", loopList.last())
-            telemetry.addData("Last loop time HZ", 1000.0 / loopList.last())
-            telemetry.addData("Average loop time", loopList.average())
-            telemetry.addData("Average loop time HZ", 1000.0 / loopList.average())
-            telemetry.addData("# of actions running", runner.runningActions.size)
-            telemetry.addData("Average # of actions running", actionCountOverTime.average())
-            telemetry.addData("Average # of actions running per second", actionCountOverTime.average() * (1000.0 / loopList.average()))
+            telemetry.addData("Last loop time MS", loopTimeMs)
+            telemetry.addData("Last loop time HZ", 1000.0 / loopTimeMs)
+            telemetry.addData("Average loop time", loopTimeAverage.sum() / loopTimeAverage.size)
+            telemetry.addData("Average loop time HZ", 1000.0 / loopTimeAverage.sum() / loopTimeAverage.size)
             
             telemetry.update()
             timer.reset()
